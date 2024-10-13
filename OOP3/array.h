@@ -3,25 +3,28 @@
 
 #include "number.h"
 #include <iostream>
-//#include <stdexcept>
 
 class Array {
 private:
-	int size = 0;
-	int capacity = 2; // Начальная емкость
+	size_t size = 0;
+	size_t capacity = 2; // Начальная емкость
 	number* array = nullptr;
 
 public:
 	Array();
-	Array(int initCapacity);
+	Array(size_t initCapacity);
+	Array(const Array& other);
+	Array& operator=(const Array& other);
 	~Array();
 	void clear();
-	void resize(int newCapacity);
-	void add(number value);
+	void resize(size_t newCapacity);
+	void add(const number value);
 	void remove();
 	void fill(const std::string& input);
 	void show(std::ostream& output);
-	number& operator[](int index);
+	number& operator[](size_t index);
+	const number& operator[](size_t index) const;
+	size_t getSize() const;
 	number average();
 	number MSD();
 	void reverse();

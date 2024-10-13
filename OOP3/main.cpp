@@ -8,7 +8,8 @@ int main()
 	setlocale(LC_ALL, "Russian");
 
 	Application application;
-	application.exec();
+	Polynom polynom;
+	application.exec(polynom);
 
 	return 0;
 }

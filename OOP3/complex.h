@@ -18,6 +18,9 @@ public:
     // Деструктор
     ~Complex() = default;
 
+    double getRe() const;
+    double getIm() const;
+
     // Методы
     double mod() const;
     double arg() const;

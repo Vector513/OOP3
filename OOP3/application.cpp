@@ -1,5 +1,6 @@
 #include "Application.h"
 #include <iostream>
+#include <string>
 
 Application::Application() {}
 
@@ -7,11 +8,7 @@ Application::~Application() {}
 
 void Application::exec(Polynom& polynom) {
     const char separator[] = "------------------------------------------------------------------------------------------------------------------------";
-    const char commands[] = "1) Ввести значения массива с консоли\n"
-        "2) Рассчитать среднее и СКО элементов массива\n"
-        "3) Отсортировать элементы массива по возрастанию или убыванию\n"
-        "4) Изменить размерность массива\n"
-        "5) Изменить значение элемента массива\n"
+    const char commands[] = "1) Ввести значения полинома с консоли\n"
         "s) Вывести текущие элементы массива\n"
         "c) Вывести список команд\n"
         "e) Выход из программы\n";
@@ -27,13 +24,22 @@ void Application::exec(Polynom& polynom) {
             std::cout << commands;
         }
         else if (command == 's') {
-            array.show(std::cout);
+            polynom.show(std::cout, false);
+            polynom.show(std::cout);
         }
         else if (command == '1') {
-            array.clear();
-            fill();
+            // 23+i 24-3i 234 53 53-523i 234 2i
+            //polynom.clear();
+            std::cout << "Введите коэффициент An и N значений его корней: ";
+            std::cin.ignore();
+            std::cin >> polynom.An;
+            std::string input;
+            std::getline(std::cin, input);
+            polynom.fillRoots(input);
+            
             std::cout << "Массив был успешно заполнен введёнными значениями\n";
         }
+        /*
         else if (command == '2') {
             try {
                 std::cout << "Среднее значение: " << array.average() << '\n';
@@ -83,19 +89,12 @@ void Application::exec(Polynom& polynom) {
             }
         }
 
+        */
+
         std::cout << separator << '\n';
         std::cout << "Введите команду: ";
         std::cin >> command;
         std::cout << '\n';
 
     } while (true);
-}
-
-void Application::fill()
-{
-    std::string input;
-    std::cout << "Введите элементы списка: ";
-    std::cin.ignore();  // Пропускаем символ новой строки, оставленный после предыдущего cin
-    std::getline(std::cin, input);
-    array.fill(input);
 }

@@ -7,8 +7,39 @@ Array::Array() : size(0), capacity(2) {
 	array = new number[capacity];
 }
 
-Array::Array(int initCapacity) : size(0), capacity(initCapacity) {
+Array::Array(size_t initCapacity) : size(0), capacity(initCapacity) {
 	array = new number[capacity];
+}
+
+Array::Array(const Array& other) : array(nullptr), capacity(0), size(0) {
+	if (other.size > 0) {
+		resize(other.capacity);
+		for (size_t i = 0; i < other.size; ++i) {
+			array[i] = other.array[i];
+		}
+		size = other.size;
+	}
+}
+
+Array& Array::operator=(const Array& other) {
+	if (this != &other) {
+		delete[] array;
+
+		if (other.size > 0) {
+			resize(other.capacity);
+			for (size_t i = 0; i < other.size; ++i) {
+				array[i] = other.array[i];
+			}
+			size = other.size;
+		}
+		else {
+			array = nullptr;
+			capacity = 0;
+			size = 0;
+		}
+	}
+
+	return *this;
 }
 
 Array::~Array() {
@@ -22,12 +53,12 @@ void Array::clear() {
 }
 
 // Изменяет емкость массива
-void Array::resize(int newCapacity) {
+void Array::resize(size_t newCapacity) {
 	if (newCapacity <= 0) return; // Запретить отрицательные емкости
 
 	// Ограничение размера до новой емкости
 	number* temp = new number[newCapacity];
-	for (int i = 0; i < size; i++) {
+	for (size_t i = 0; i < size; i++) {
 		temp[i] = array[i];
 	}
 	delete[] array;
@@ -53,8 +84,10 @@ void Array::remove() {
 	}
 }
 
+/*
 // Заполняет массив значениями из строки
 void Array::fill(const std::string& input) {
+	/*
 	std::stringstream ss(input);
 	number value;
 	while (ss >> value) {
@@ -64,30 +97,63 @@ void Array::fill(const std::string& input) {
 	if (ss.fail() && !ss.eof()) { // Проверка на ошибки во вводе
 		std::cerr << "Warning: some parts of the input were not numbers." << std::endl;
 	}
+	
+	number value;
+	while (input >> value) { // Читаем по одному комплексному числу
+		add(value); // Добавляем его в вектор
+	}
+	//return input;
 }
+*/
+
+void Array::fill(const std::string& input) {
+	std::stringstream ss(input);
+	number value;
+	clear();  // Очищаем массив перед заполнением
+	while (ss >> value) {
+		add(value);
+	}
+	if (ss.fail() && !ss.eof()) {
+		std::cerr << "Ошибка: некорректный ввод комплексного числа." << std::endl;
+	}
+}
+
+
 
 // Печатает массив
 void Array::show(std::ostream& output) {
 	output << "Массив: ";
-	for (int i = 0; i < size; i++) {
+	for (size_t i = 0; i < size; i++) {
 		output << array[i] << ' ';
 	}
 	output << '\n';
 }
 
 // Оператор доступа по индексу
-number& Array::operator[](int index) {
-	if (index < 0 || index >= size) {
+number& Array::operator[](size_t index) {
+	if (index >= capacity) {
 		throw std::out_of_range("Index out of range");
 	}
 	return array[index];
+}
+
+const number& Array::operator[](size_t index) const {
+	if (index >= capacity) {
+		throw std::out_of_range("Index out of range");
+	}
+	return array[index];
+}
+
+size_t Array::getSize() const
+{
+	return size;
 }
 
 // Вычисляет среднее значение массива
 number Array::average() {
 	if (size == 0) return 0; // Защита от деления на 0
 	number sum = 0;
-	for (int i = 0; i < size; i++) {
+	for (size_t i = 0; i < size; i++) {
 		sum += array[i];
 	}
 	return sum / size;
@@ -98,7 +164,7 @@ number Array::MSD() {
 	if (size < 2) return 0; // Защита от деления на 0
 	number avg = average();
 	number sum = 0;
-	for (int i = 0; i < size; i++) {
+	for (size_t i = 0; i < size; i++) {
 		sum += pow((array[i] - avg), 2);
 	}
 	return sqrt(sum / (size - 1));
@@ -106,7 +172,7 @@ number Array::MSD() {
 
 // Разворачивает массив
 void Array::reverse() {
-	for (int i = 0; i < size / 2; i++) {
+	for (size_t i = 0; i < size / 2; i++) {
 		std::swap(array[i], array[size - i - 1]);
 	}
 }
