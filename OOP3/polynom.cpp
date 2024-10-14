@@ -1,34 +1,25 @@
 #include "polynom.h"
 #include <sstream>
 #include <iomanip>
+#include <vector>
 
 Polynom::Polynom() : degree(0), An(), roots(), coefs() {}
 
 Polynom::~Polynom() {}
 
-void Polynom::clear()
-{
+void Polynom::clear() {}
+
+void Polynom::fillRoots(const std::string& input) {
+    roots.fill(input);
+    degree = roots.getSize();
+    calculateCoefs();
 }
 
-void Polynom::fillRoots(const std::string& input)
-{
-	roots.fill(input);
-	degree = roots.getSize();
-	calculateCoefs();
-}
-
-Array multiplyPolynomials(const Array& poly1, const Array& poly2) {
-    size_t newSize = poly1.getSize() + poly2.getSize() - 1;
-    if (newSize < 0) {
-        throw std::invalid_argument("Invalid polynomial size");
-    }
-
+Array Polynom::multiplyPolynomials(const Array& poly1, const Array& poly2) {
     Array result;
-    result.resize(newSize);
+    size_t newSize = poly1.getSize() + poly2.getSize() - 1;
 
-    for (size_t i = 0; i < result.getSize(); ++i) {
-        result[i] = 0.0;
-    }
+    result.resize(newSize);
 
     for (size_t i = 0; i < poly1.getSize(); ++i) {
         for (size_t j = 0; j < poly2.getSize(); ++j) {
@@ -40,45 +31,36 @@ Array multiplyPolynomials(const Array& poly1, const Array& poly2) {
 }
 
 void Polynom::calculateCoefs() {
-    coefs.resize(degree + 1);
-    coefs[degree] = An;
-
     Array currentPoly;
-    currentPoly.resize(1);
-    currentPoly[0] = An;
+    currentPoly.add(An);
 
     for (size_t i = 0; i < roots.getSize(); ++i) {
         Array factor;
-        factor.resize(2);
-        factor[0] = -roots[i];
-        factor[1] = 1.0;
+        factor.add(-roots[i]);
+        factor.add(1.0);
 
         currentPoly = multiplyPolynomials(currentPoly, factor);
     }
 
-    coefs.resize(currentPoly.getSize());
-    for (size_t i = 0; i < currentPoly.getSize(); ++i) {
-        coefs[i] = currentPoly[i];
-    }
+    coefs = currentPoly;
 }
+
 std::string Polynom::formatComplex(const number& num) const {
     double re = num.getRe();
     double im = num.getIm();
 
-    std::ostringstream result; // Используем ostringstream для форматирования
-
-    // Устанавливаем точность до 2 знаков после запятой
+    std::ostringstream result;
     result << std::fixed << std::setprecision(2);
 
     if (re != 0) {
-        result << re; // Действительная часть
+        result << re;
     }
 
     if (im > 0) {
-        result << " + " << im; // Мнимая часть
+        result << " + " << im;
     }
     else if (im < 0) {
-        result << " - " << -im; // Мнимая часть
+        result << " - " << -im;
     }
 
     return result.str();
@@ -87,22 +69,14 @@ std::string Polynom::formatComplex(const number& num) const {
 void Polynom::show(std::ostream& output, bool isFirstForm) const {
     if (isFirstForm) {
         output << "p(x) = ";
-        bool firstTerm = true; // Для обработки первого члена полинома
-
+        bool firstTerm = true;
         for (size_t i = coefs.getSize() - 1; i != static_cast<size_t>(-1); --i) {
-            if (coefs[i].getRe() != 0 || coefs[i].getIm() != 0) { // Пропускаем нулевые коэффициенты
+            if (coefs[i].getRe() != 0 || coefs[i].getIm() != 0) {
                 if (!firstTerm) {
-                    // Определяем знак перед членом
-                    if (coefs[i].getRe() > 0) {
-                        output << " + ";
-                    }
-                    else {
-                        output << " - ";
-                    }
+                    output << (coefs[i].getRe() > 0 ? " + " : " - ");
                 }
                 firstTerm = false;
 
-                // Выводим абсолютное значение коэффициента, чтобы знак был отдельным
                 if ((coefs[i].mod()) != 1 || i == 0) {
                     output << formatComplex(coefs[i]);
                 }
@@ -117,48 +91,33 @@ void Polynom::show(std::ostream& output, bool isFirstForm) const {
         }
 
         if (firstTerm) {
-            // Если все коэффициенты были нулями, выводим "0"
             output << "0";
         }
 
         output << '\n';
     }
     else {
-        output << "p(x) = (";
-
-        // Добавляем An с учетом мнимой части
-        output << formatComplex(An);
-
-        // Если An имеет мнимую часть, добавляем её в скобки
-        if (An.getIm() != 0) {
-            output << "i";
-        }
-
-        output << ")";
+        output << "p(x) = (" << formatComplex(An) << ")";
 
         for (size_t i = 0; i < roots.getSize(); i++) {
-            // Выводим корень, следя за знаками
             output << "(x ";
             double reRoot = roots[i].getRe();
             double imRoot = roots[i].getIm();
 
-            // Обрабатываем действительную часть
             if (reRoot != 0) {
-                output << "- " << reRoot; // Для действительной части всегда выводим "-"
+                output << "- " << reRoot;
             }
             else {
-                // Если действительная часть равна 0, проверяем мнимую
                 if (imRoot > 0) {
-                    output << "- " << imRoot; // Печатаем мнимую часть с "i"
+                    output << "- " << imRoot;
                 }
                 else if (imRoot < 0) {
-                    output << "+ " << -imRoot; // Печатаем мнимую часть с "i"
+                    output << "+ " << -imRoot;
                 }
             }
 
-            // Добавляем мнимую часть, если она не равна 0
             if (imRoot != 0) {
-                output << " + " << std::abs(imRoot) << "i"; // Печатаем мнимую часть с "i"
+                output << " + " << std::abs(imRoot) << "i";
             }
 
             output << ')';

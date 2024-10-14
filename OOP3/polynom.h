@@ -17,6 +17,8 @@ public:
     void clear();
 
     void fillRoots(const std::string& input);
+    //void multiplyByRoots(const Array& roots);
+    Array multiplyPolynomials(const Array& poly1, const Array& poly2);
     void calculateCoefs();
 
     std::string formatComplex(const number& complex) const;

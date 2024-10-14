@@ -3,12 +3,12 @@
 #include <algorithm>
 
 // Конструкторы и деструктор
-Array::Array() : size(0), capacity(2) {
+Array::Array() : size(0), capacity(0) {
 	array = new number[capacity];
 }
 
-Array::Array(size_t initCapacity) : size(0), capacity(initCapacity) {
-	array = new number[capacity];
+Array::Array(size_t initSize) : size(initSize), capacity(initSize) {
+	array = new number[initSize];
 }
 
 Array::Array(const Array& other) : array(nullptr), capacity(0), size(0) {
@@ -49,30 +49,42 @@ Array::~Array() {
 // Очищает массив и сбрасывает его размер
 void Array::clear() {
 	size = 0;
-	resize(2); // Сбрасываем емкость до начальной
+	resize(0); // Сбрасываем емкость до начальной
 }
 
 // Изменяет емкость массива
 void Array::resize(size_t newCapacity) {
-	if (newCapacity <= 0) return; // Запретить отрицательные емкости
+	// Ограничиваем размер до новой емкости (в newCapacity >= 1)
+	number* temp = new number[newCapacity];  // Новый массив
 
-	// Ограничение размера до новой емкости
-	number* temp = new number[newCapacity];
-	for (size_t i = 0; i < size; i++) {
+	// Копируем старые элементы в новый массив
+	for (size_t i = 0; i < size && i < newCapacity; i++) {
 		temp[i] = array[i];
 	}
-	delete[] array;
+
+	// Если новая емкость больше текущего размера, инициализируем оставшиеся элементы нулями
+	for (size_t i = size; i < newCapacity; i++) {
+		temp[i] = 0; // Инициализация нулями
+	}
+
+	delete[] array; // Освобождаем старую память
 	array = temp;
 	capacity = newCapacity;
+
+	// Если размер превышает новую емкость, корректируем размер
+	if (size > newCapacity) {
+		size = newCapacity;
+	}
 }
 
-// Добавляет элемент в массив
+// Исправленная функция добавления элемента
 void Array::add(number value) {
 	if (size >= capacity) {
-		resize(capacity * 2);
+		resize(capacity == 0 ? 1 : capacity * 2);  // Расширение емкости массива
 	}
-	array[size++] = value; // Увеличиваем size после добавления
+	array[size++] = value;  // Увеличиваем size после добавления
 }
+
 
 // Удаляет последний элемент массива
 void Array::remove() {
@@ -133,6 +145,9 @@ void Array::show(std::ostream& output) {
 number& Array::operator[](size_t index) {
 	if (index >= capacity) {
 		throw std::out_of_range("Index out of range");
+	}
+	if (index > size) {
+		size = index;
 	}
 	return array[index];
 }

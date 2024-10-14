@@ -6,9 +6,9 @@
 
 class Array {
 private:
-	size_t size = 0;
-	size_t capacity = 2; // Начальная емкость
-	number* array = nullptr;
+	size_t size;
+	size_t capacity;
+	number* array;
 
 public:
 	Array();
