@@ -57,30 +57,33 @@ std::string Polynom::formatComplex(const number& num) const {
     }
 
     if (im > 0) {
-        result << " + " << im;
+        result << (re != 0 ? " + " : "") << im << "i"; // Добавляем мнимую часть с " + "
     }
     else if (im < 0) {
-        result << " - " << -im;
+        result << (re != 0 ? " - " : "") << -im << "i"; // Добавляем мнимую часть с " - "
     }
 
     return result.str();
 }
+
 
 void Polynom::show(std::ostream& output, bool isFirstForm) const {
     if (isFirstForm) {
         output << "p(x) = ";
         bool firstTerm = true;
         for (size_t i = coefs.getSize() - 1; i != static_cast<size_t>(-1); --i) {
-            if (coefs[i].getRe() != 0 || coefs[i].getIm() != 0) {
+            if (coefs[i].getRe() != 0 || coefs[i].getIm() != 0) { // Пропускаем нулевые коэффициенты
                 if (!firstTerm) {
                     output << (coefs[i].getRe() > 0 ? " + " : " - ");
                 }
                 firstTerm = false;
 
-                if ((coefs[i].mod()) != 1 || i == 0) {
+                // Выводим абсолютное значение коэффициента, чтобы знак был отдельным
+                if ((coefs[i].mod() != 1 || i == 0)) {
                     output << formatComplex(coefs[i]);
                 }
 
+                // Добавляем переменную и степень
                 if (i > 0) {
                     output << "x";
                     if (i > 1) {
@@ -91,37 +94,52 @@ void Polynom::show(std::ostream& output, bool isFirstForm) const {
         }
 
         if (firstTerm) {
+            output << "0";  // Если все коэффициенты нулевые
+        }
+        output << '\n';
+    }
+    else {
+        output << "p(x) = ";
+
+        // Выводим старший коэффициент An
+        if (An.getRe() != 0 || An.getIm() != 0) {
+            output << "(" << formatComplex(An) << ")";
+        }
+
+        // Обрабатываем каждый корень
+        for (size_t i = 0; i < roots.getSize(); ++i) {
+            output << "(x ";
+
+            double reRoot = roots[i].getRe();  // Действительная часть корня
+            double imRoot = roots[i].getIm();  // Мнимая часть корня
+
+            // Обработка действительной части
+            if (reRoot != 0) {
+                output << (reRoot > 0 ? "- " : "+ ") << std::abs(reRoot);  // Прямой вывод действительной части
+            }
+            else {
+                output << "- 0";  // Если действительная часть равна 0
+            }
+
+            // Обработка мнимой части с правильным знаком
+            if (imRoot != 0) {
+                if (imRoot > 0) {
+                    output << " + " << imRoot << "i";  // Положительная мнимая часть добавляется с "+"
+                }
+                else {
+                    output << " + " << -imRoot << "i";  // Отрицательная мнимая часть все равно выводится с "+"
+                }
+            }
+
+            output << ")";
+        }
+
+        // Если все коэффициенты равны 0
+        if (roots.getSize() == 0 && (An.getRe() == 0 && An.getIm() == 0)) {
             output << "0";
         }
 
         output << '\n';
-    }
-    else {
-        output << "p(x) = (" << formatComplex(An) << ")";
 
-        for (size_t i = 0; i < roots.getSize(); i++) {
-            output << "(x ";
-            double reRoot = roots[i].getRe();
-            double imRoot = roots[i].getIm();
-
-            if (reRoot != 0) {
-                output << "- " << reRoot;
-            }
-            else {
-                if (imRoot > 0) {
-                    output << "- " << imRoot;
-                }
-                else if (imRoot < 0) {
-                    output << "+ " << -imRoot;
-                }
-            }
-
-            if (imRoot != 0) {
-                output << " + " << std::abs(imRoot) << "i";
-            }
-
-            output << ')';
-        }
-        output << '\n';
     }
 }

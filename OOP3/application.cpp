@@ -13,22 +13,22 @@ void Application::exec(Polynom& polynom) {
         "c) Вывести список команд\n"
         "e) Выход из программы\n";
 
-    char command = 'c';
+    std::string command = "c";
 
     do {
-        if (command == 'e') {
+        if (command == "e") {
             std::cout << "Программа была завершена по воле пользователя\n";
             break;
         }
-        else if (command == 'c') {
+        else if (command == "c") {
             std::cout << commands;
         }
-        else if (command == 's') {
+        else if (command == "s") {
             polynom.show(std::cout, false);
             polynom.show(std::cout);
         }
-        else if (command == '1') {
-            // 23+i 24-3i 234 53 53-523i 234 2i
+        else if (command == "1") {
+            // 23-4i 24-3i 234 53 53-523i 234 2i
             //polynom.clear();
             std::cout << "Введите коэффициент An и N значений его корней: ";
             std::cin.ignore();
