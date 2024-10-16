@@ -1,15 +1,21 @@
 #include "Application.h"
 #include <iostream>
 #include <string>
+#include <limits>
 
 Application::Application() {}
 
 Application::~Application() {}
 
-void Application::exec(Polynom& polynom) {
+void Application::exec(Polynom& polynom)
+{
     const char separator[] = "------------------------------------------------------------------------------------------------------------------------";
-    const char commands[] = "1) Ввести значения полинома с консоли\n"
-        "s) Вывести текущие элементы массива\n"
+    const char commands[] =
+        "1) Ввести значения полинома с консоли\n"
+        "2) Изменить коэффициент An или корень по индексу\n"
+        "3) Вычислить значение полинома в точке\n"
+        "4) Изменить размерность массива корней\n"
+        "s) Вывести полином в форме 1 или 2\n"
         "c) Вывести список команд\n"
         "e) Выход из программы\n";
 
@@ -17,84 +23,97 @@ void Application::exec(Polynom& polynom) {
 
     do {
         if (command == "e") {
-            std::cout << "Программа была завершена по воле пользователя\n";
+            std::cout << "Программа завершена.\n";
             break;
         }
         else if (command == "c") {
             std::cout << commands;
         }
         else if (command == "s") {
-            polynom.show(std::cout, false);
-            polynom.show(std::cout);
+            std::string form;
+            std::cout << "Вывести полином в форме 1 или 2 (введите 1 или 2): ";
+            std::getline(std::cin, form);
+            if (form == "1") {
+                polynom.show(std::cout);
+            }
+            else if (form == "2") {
+                polynom.show(std::cout, false);
+            }
+            else {
+                std::cerr << "Ошибка: неверная форма вывода.\n";
+            }
         }
         else if (command == "1") {
-            // 23-4i 24-3i 234 53 53-523i 234 2i
-            //polynom.clear();
             std::cout << "Введите коэффициент An и N значений его корней: ";
-            std::cin.ignore();
-            std::cin >> polynom.An;
+            number An;
+            std::cin >> An;
+            polynom.setAn(An);
             std::string input;
             std::getline(std::cin, input);
             polynom.fillRoots(input);
-            
-            std::cout << "Массив был успешно заполнен введёнными значениями\n";
+            std::cout << "Массив корней успешно заполнен введёнными значениями.\n";
         }
-        /*
-        else if (command == '2') {
-            try {
-                std::cout << "Среднее значение: " << array.average() << '\n';
-                std::cout << "СКО: " << array.MSD() << '\n';
-            }
-            catch (std::exception& ex) {
-                std::cout << "Ошибка при вычислении: " << ex.what() << '\n';
-            }
-        }
-        else if (command == '3') {
-            std::cout << "Отсортировать по возрастанию? (y/n): ";
-            char isIncreased;
-            std::cin >> isIncreased;
-            if (isIncreased == 'y') {
-                array.sort();
-                std::cout << "Элементы массива были успешно отсортированы по возрастанию\n";
-                array.show(std::cout);
-            }
-            else if (isIncreased == 'n') {
-                array.sort(true);
-                std::cout << "Элементы массива были успешно отсортированы по убыванию\n";
-                array.show(std::cout);
+        else if (command == "2") {
+            std::cout << "Введите, что изменить (An/индекс корня): ";
+            std::string changeOption;
+            std::getline(std::cin, changeOption);
+
+            if (changeOption == "An") {
+                std::cout << "Введите новое значение An: ";
+                number newAn;
+                std::cin >> newAn;
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                polynom.setAn(newAn);
             }
             else {
-                std::cout << "Вы ввели неправильный символ, массив не был отсортирован\n";
+                try {
+                    size_t index = std::stoul(changeOption);
+                    if (index < polynom.getDegree()) {
+                        number newRoot;
+                        std::cout << "Введите новое значение для корня с индексом " << index << ": ";
+                        std::cin >> newRoot;
+                        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                        polynom.setRoot(index, newRoot);
+                    }
+                    else {
+                        std::cerr << "Ошибка: неверный индекс корня.\n";
+                    }
+                }
+                catch (const std::invalid_argument&) {
+                    std::cerr << "Ошибка: неверный формат индекса.\n";
+                }
             }
         }
-        else if (command == '4') {
-            std::cout << "Введите новую размерность текущего массива: ";
-            int newCapacity;
-            std::cin >> newCapacity;
-            resize(newCapacity);
-            std::cout << "Размер массива был успешно изменён на " << newCapacity << '\n';
+        else if (command == "3") {
+            number x;
+            std::cout << "Введите значение точки x для вычисления полинома: ";
+            std::cin >> x;
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            number result = polynom.evaluate(x);
+            std::cout << "Значение полинома в точке " << x << ": " << result << '\n';
         }
-        else if (command == '5') {
-            std::cout << "Введите индекс и новое значение элемента массива: ";
-            int index;
-            number value;
-            std::cin >> index >> value;
-            try {
-                array[index] = value;
-                std::cout << "Значение элемента массива с индексом " << index << " было успешно изменено\n";
-                array.show(std::cout);
-            }
-            catch (std::out_of_range& ex) {
-                std::cout << "Ошибка: " << ex.what() << '\n';
-            }
+        else if (command == "4") {
+            size_t newSize;
+            std::cout << "Введите новую размерность массива корней: ";
+            std::cin >> newSize;
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            polynom.resize(newSize);
+            std::cout << "Размер массива корней изменён на " << newSize << ".\n";
         }
-
-        */
+        else {
+            std::cout << "Неправильная команда! Попробуйте снова.\n";
+        }
 
         std::cout << separator << '\n';
         std::cout << "Введите команду: ";
-        std::cin >> command;
-        std::cout << '\n';
+        std::getline(std::cin, command);
+
+        if (std::cin.fail()) {
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cout << "Некорректный ввод! Попробуйте снова.\n";
+            command = "c";
+        }
 
     } while (true);
 }

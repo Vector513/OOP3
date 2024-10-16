@@ -5,21 +5,27 @@
 
 class Polynom
 {
-public:
+private:
     size_t degree;
     number An;
     Array roots;
     Array coefs;
 
+public:
     Polynom();
     ~Polynom();
 
     void clear();
 
     void fillRoots(const std::string& input);
-    //void multiplyByRoots(const Array& roots);
     Array multiplyPolynomials(const Array& poly1, const Array& poly2);
     void calculateCoefs();
+    void setRoot(const size_t index, const number& newRoot);
+    void setAn(const number& newAn);
+    size_t getDegree() const;
+    number evaluate(const number& x) const;
+
+    void resize(const size_t newSize);
 
     std::string formatComplex(const number& complex) const;
     void show(std::ostream& output, bool isFirstForm = true) const;

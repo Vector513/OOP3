@@ -10,35 +10,28 @@ Array::Array(size_t initialSize) : size(0), capacity(0), array(nullptr) {
 
 Array::Array(const std::initializer_list<number>& initList) : size(0), capacity(0), array(nullptr) {
     resize(initList.size());
-    size_t i = 0;
-    for (number value : initList) {
-        array[i++] = value;
-    }
+    std::copy(initList.begin(), initList.end(), array);
     size = initList.size();
 }
 
 Array::Array(const Array& other) : size(other.size), capacity(other.capacity), array(nullptr) {
     if (capacity > 0) {
         array = new number[capacity];
-        for (size_t i = 0; i < size; ++i) {
-            array[i] = other.array[i];
-        }
+        std::copy(other.array, other.array + size, array);
     }
 }
 
 Array& Array::operator=(const Array& other) {
-    if (this == &other) return *this;  // Защита от самоприсваивания
+    if (this == &other) return *this;
 
-    delete[] array;  // Освобождаем текущую память
+    delete[] array;
 
     size = other.size;
     capacity = other.capacity;
 
     if (capacity > 0) {
         array = new number[capacity];
-        for (size_t i = 0; i < size; ++i) {
-            array[i] = other.array[i];
-        }
+        std::copy(other.array, other.array + size, array);
     }
     else {
         array = nullptr;
@@ -48,7 +41,7 @@ Array& Array::operator=(const Array& other) {
 }
 
 Array::~Array() {
-    delete[] array;  // Освобождаем память при разрушении объекта
+    delete[] array;
 }
 
 size_t Array::getSize() const {
@@ -57,43 +50,38 @@ size_t Array::getSize() const {
 
 void Array::resize(size_t newSize) {
     if (newSize > capacity) {
-        reallocate(newSize);  // Увеличиваем емкость, если новый размер больше текущей емкости
+        reallocate(newSize);
     }
     size = newSize;
 }
 
 void Array::add(number value) {
     if (size >= capacity) {
-        reallocate(capacity == 0 ? 1 : capacity * 2);  // Удваиваем емкость при необходимости
+        reallocate(capacity == 0 ? 1 : capacity * 2);
     }
-    array[size++] = value;  // Добавляем элемент в массив
+    array[size++] = value;
 }
 
 void Array::fill(const std::string& input) {
-    std::istringstream stream(input);  // Поток для считывания данных из строки
+    std::istringstream stream(input);
     number value;
 
-    clear();  // Очищаем массив перед заполнением
+    clear();
 
-    // Пока можем считать число из строки, добавляем его в массив
     while (stream >> value) {
         add(value);
-
-        // Пропускаем разделители (например, пробелы, запятые и т.п.)
         if (stream.peek() == ',' || stream.peek() == ' ' || stream.peek() == ';') {
             stream.ignore();
         }
     }
 
-    // Обработка возможных ошибок
     if (stream.fail() && !stream.eof()) {
         throw std::invalid_argument("Invalid input string for filling Array");
     }
 }
 
-
 void Array::clear() {
-    size = 0;  // Просто устанавливаем размер в 0, емкость не изменяется
+    size = 0;
 }
 
 number& Array::operator[](size_t index) {
@@ -111,11 +99,9 @@ const number& Array::operator[](size_t index) const {
 }
 
 void Array::reallocate(size_t newCapacity) {
-    number* newArray = new number[newCapacity];  // Выделяем новую память
-    for (size_t i = 0; i < size; ++i) {
-        newArray[i] = array[i];  // Копируем существующие элементы
-    }
-    delete[] array;  // Освобождаем старую память
-    array = newArray;  // Переключаем указатель на новый массив
-    capacity = newCapacity;  // Обновляем емкость
+    number* newArray = new number[newCapacity];
+    std::copy(array, array + size, newArray);
+    delete[] array;
+    array = newArray;
+    capacity = newCapacity;
 }
