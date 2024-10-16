@@ -25,6 +25,9 @@ public:
     size_t getSize() const;
     void resize(size_t newSize);
     void add(number value); 
+    void remove();
+    number average() const;
+    number MSD() const;
     void fill(const std::string& input);
     void clear();
 

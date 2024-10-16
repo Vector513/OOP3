@@ -34,6 +34,7 @@ public:
     Complex operator+(const Complex& other) const;
     Complex operator-(const Complex& other) const;
     Complex operator*(const double coef) const;
+    friend Complex operator*(const double coef, const Complex& other);
     Complex operator*(const Complex& other) const;
     Complex operator/(const double coef) const;
     Complex operator/(const Complex& other) const;

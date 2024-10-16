@@ -106,6 +106,11 @@ Complex Complex::operator*(const double coef) const {
     return Complex{ re * coef, im * coef };
 }
 
+Complex operator*(double coef, const Complex& other)
+{
+    return Complex{ other.getRe() * coef, other.getIm() * coef };
+}
+
 Complex Complex::operator*(const Complex& other) const {
     return Complex{ re * other.re - im * other.im, re * other.im + im * other.re };
 }

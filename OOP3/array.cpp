@@ -62,6 +62,39 @@ void Array::add(number value) {
     array[size++] = value;
 }
 
+void Array::remove()
+{
+    if (size > 0) {
+        size--;
+        if (size <= capacity / 4 && capacity > 2) {
+            resize(capacity / 2);
+        }
+    }
+}
+
+number Array::average() const
+{
+    number res = 0;
+    for (size_t i = 0; i < size; i++) {
+        res += array[i];
+    }
+    res /= size;
+
+    return res;
+}
+
+number Array::MSD() const
+{
+    number avg = average();
+    number res = 0;
+    for (size_t i = 0; i < size; i++) {
+        res += pow((array[i] - avg), 2);
+    }
+    res = sqrt((1.0 / (size - 1)) * res);
+
+    return res;
+}
+
 void Array::fill(const std::string& input) {
     std::istringstream stream(input);
     number value;
